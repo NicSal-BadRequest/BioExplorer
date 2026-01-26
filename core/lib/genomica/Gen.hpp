@@ -7,9 +7,7 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <memory>
-#include <optional>
-#include <fstream>
+
 
 // Tipos abstractos estrictos para Pattern Matching
 
@@ -53,17 +51,47 @@ enum class TipoInteraccion {
     Catalisis
 };
 
+// Definido segun tipo de transcrito y la funcion del mismo
 enum class TipoGen {
-    Proteico,
-    ARN_Ribosomal,
-    ARN_Transferencia,
-    MicroARN,
-    LncARN,
-    ARN_Piwi,
-    ARN_Regulatorio,
+    Proteico, //ARNm
+    ARN_Ribosomal, //ARNr
+    ARN_Transferencia, //ARNt
+    MicroARN, //microARN
+    LncARN, //lncARN
+    ARN_Nuclear, // ARNpn
+    ARN_Nucleolar, //ARNpno
+    ARN_Piwi, // ARNpiwi
+    ARN_Enhancer, //ARNe
     Pseudogen
 };
 
+class SubGenetico {
+private:
+    TipoSubGenetico tipo;
+    std::string nombre;
+    Secuencia secuencia;
+
+    // Map interno para elementos que tienen "subcosas"
+    // Ej: Promotor -> {"Caja_TATA": secuencia, "Caja_CAAT": secuencia}
+    // Ej: ORF -> {"exon1": secuencia, "intron1": secuencia}
+    std::map<std::string, std::puntero_comun<SubGenetico>> subelementos;
+
+public:
+    SubGenetico(TipoSubGenetico t, 
+                const std::string& n, 
+                const std::string& ruta_seq,
+                size_t lon);
+    TipoSubGenetico genTipo() const;
+    const std::string& getNombre() const;
+    const Secuencia& getSecuencia() const;
+
+    void agregarSubElemento(const std::string& clave,
+                            std::shared_ptr<SubGenetico> elem);
+
+    std::shared_ptr<SubGenetico> obtenerSubElemento(const std::string& clave) const;
+
+    const std::map<std::string, std::shared_ptr<SubGenetico>>& getSubElementos() const;
+};
 
 
 class Gen{
